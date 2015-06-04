@@ -31,6 +31,12 @@ function Spell(name,cost,description){
    * e.g. console.log(a, b, c); <-- no commas, please use string concatenation.
    */
 
+function DamageSpell(name,cost,damage,description){
+  Spell.call(this,name,cost,description);
+  this.damage = damage;
+};
+DamageSpell.prototype = Object.create(Spell.prototype,{constructor :{value:Spell}});
+
 /**
  * A spell that deals damage.
  * We want to keep this code DRY (Don't Repeat Yourself).
@@ -55,44 +61,40 @@ function Spell(name,cost,description){
  * @property {number} damage
  * @property {string} description
  */
+function Spellcaster(name,health,mana){
+  this.name = name;
+  this.health = health;
+  this.mana = mana;
+  this.isAlive = true;
+  this.inflictDamage = function(damage){
+    this.health -= damage;
+    if(this.health <= 0){
+      this.isAlive = false;
+      this.health = 0;
+    }
+  };
+  this.spendMana = function(cost){
+    if(this.mana >= cost){
+      this.mana -= cost;
+      return true;
+    } else return false;
+  };
+  this.invoke = function(spell,target){
+    if(spell instanceof Spell && spell instanceof DamageSpell &&  target instanceof Spellcaster){
+      if(this.mana >= spell.cost){
+        this.spendMana(spell.cost);
+        target.inflictDamage(spell.damage);
+        return true;
+      } else return false;
+    } else if(spell instanceof Spell && !(spell instanceof DamageSpell)){
+      if(this.mana >= spell.cost){
+        this.spendMana(spell.cost);
+        return true
+      } else return false;
+    } else return false;
+  };
+}
 
-/**
- * Now that you've created some spells, let's create
- * `Spellcaster` objects that can use them!
- *
- * @name Spellcaster
- * @param {string} name         The spellcaster's name.
- * @param {number} health       The spellcaster's health points.
- * @param {number} mana         The spellcaster's mana points, used for casting spells.
- * @property {string} name
- * @property {number} health
- * @property {mana} mana
- * @property {boolean} isAlive  Default value should be `true`.
- * @method  inflictDamage
- * @method  spendMana
- * @method  invoke
- */
-
-  /**
-   * @method inflictDamage
-   *
-   * The spellcaster loses health equal to `damage`.
-   * Health should never be negative.
-   * If the spellcaster's health drops to 0,
-   * its `isAlive` property should be set to `false`.
-   *
-   * @param  {number} damage  Amount of damage to deal to the spellcaster
-   */
-
-  /**
-   * @method spendMana
-   *
-   * Reduces the spellcaster's mana by `cost`.
-   * Mana should only be reduced only if there is enough mana to spend.
-   *
-   * @param  {number} cost      The amount of mana to spend.
-   * @return {boolean} success  Whether mana was successfully spent.
-   */
 
   /**
    * @method invoke
